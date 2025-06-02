@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-8">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        {% trans "Connection Error" %}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-plug text-danger" style="font-size: 64px;"></i>
+                    </div>
+                    
+                    <h4 class="text-center mb-3">{% trans "We're having trouble connecting to the server" %}</h4>
+                    
+                    <div class="alert alert-secondary">
+                        <strong>{% trans "Error Code:" %}</strong> {{ error_code }}<br>
+                        <strong>{% trans "Error Message:" %}</strong> {{ error_message }}
+                    </div>
+                    
+                    <p class="mb-4">{{ suggestion }}</p>
+                    
+                    <div class="troubleshooting-steps">
+                        <h5>{% trans "Troubleshooting Steps:" %}</h5>
+                        <ol>
+                            <li>{% trans "Check your internet connection" %}</li>
+                            <li>{% trans "Restart your browser or application" %}</li>
+                            <li>{% trans "Verify that the MongoDB service is running" %}</li>
+                            <li>{% trans "Check your firewall settings" %}</li>
+                            <li>{% trans "Try again in a few minutes" %}</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{% url 'home' %}" class="btn btn-primary mr-2">
+                            <i class="fas fa-home mr-1"></i> {% trans "Return to Dashboard" %}
+                        </a>
+                        <button onclick="window.location.reload();" class="btn btn-success">
+                            <i class="fas fa-sync-alt mr-1"></i> {% trans "Refresh Page" %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

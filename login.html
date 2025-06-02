@@ -1,0 +1,444 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AgriSmart</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, rgba(46, 125, 50, 0.9) 0%, rgba(76, 175, 80, 0.8) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Background decorative elements */
+        .bg-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+        
+        .bg-element {
+            position: absolute;
+            opacity: 0.15;
+            filter: brightness(1.2);
+        }
+        
+        .tractor {
+            top: 15%;
+            right: 5%;
+            width: 300px;
+            height: 300px;
+            background: url('https://cdn-icons-png.flaticon.com/512/2349/2349893.png') no-repeat center center;
+            background-size: contain;
+            transform: rotate(15deg);
+        }
+        
+        .wheat {
+            bottom: 10%;
+            left: 5%;
+            width: 250px;
+            height: 250px;
+            background: url('https://cdn-icons-png.flaticon.com/512/2346/2346952.png') no-repeat center center;
+            background-size: contain;
+            transform: rotate(-10deg);
+        }
+        
+        .plant {
+            top: 10%;
+            left: 10%;
+            width: 200px;
+            height: 200px;
+            background: url('https://cdn-icons-png.flaticon.com/512/3093/3093982.png') no-repeat center center;
+            background-size: contain;
+        }
+        
+        .watering {
+            bottom: 15%;
+            right: 10%;
+            width: 220px;
+            height: 220px;
+            background: url('https://cdn-icons-png.flaticon.com/512/2636/2636403.png') no-repeat center center;
+            background-size: contain;
+            transform: rotate(-15deg);
+        }
+        
+        /* Main background image */
+        .bg-main {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1932&q=80') no-repeat center center;
+            background-size: cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+
+        .login-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            z-index: 2;
+            border-top: 5px solid #4caf50;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-icon {
+            font-size: 48px;
+            color: #4caf50;
+            margin-bottom: 15px;
+        }
+        
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+            background: url('https://cdn-icons-png.flaticon.com/512/6270/6270625.png') no-repeat center center;
+            background-size: contain;
+        }
+
+        h2 {
+            color: #2e7d32;
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        p {
+            color: #666;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+            position: relative;
+        }
+
+        .form-group i {
+            position: absolute;
+            left: 15px;
+            top: 40px;
+            color: #4caf50;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border-color: #4caf50;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+            background-color: white;
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+        }
+
+        .remember-me input {
+            margin-right: 8px;
+            accent-color: #4caf50;
+        }
+
+        .forgot-password a {
+            color: #4caf50;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn:hover {
+            background-color: #388e3c;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+
+        .messages {
+            margin-bottom: 20px;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+
+        .success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+
+        .info {
+            background-color: #e3f2fd;
+            color: #1565c0;
+            border-left: 4px solid #1565c0;
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .signup-link a {
+            color: #4caf50;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+
+        .farm-decoration {
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            z-index: 3;
+        }
+
+        .farm-decoration i {
+            font-size: 24px;
+            color: #4caf50;
+            margin: 0 8px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        /* Animated clouds */
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            z-index: 0;
+        }
+        
+        .cloud1 {
+            width: 200px;
+            height: 60px;
+            top: 15%;
+            left: -100px;
+            animation: moveCloud 30s linear infinite;
+        }
+        
+        .cloud2 {
+            width: 300px;
+            height: 80px;
+            top: 35%;
+            left: -150px;
+            animation: moveCloud 40s linear infinite;
+        }
+        
+        .cloud3 {
+            width: 150px;
+            height: 50px;
+            top: 65%;
+            left: -75px;
+            animation: moveCloud 25s linear infinite;
+        }
+        
+        @keyframes moveCloud {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(calc(100vw + 300px));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main background image -->
+    <div class="bg-main"></div>
+    
+    <!-- Background decorative elements -->
+    <div class="bg-elements">
+        <div class="bg-element tractor"></div>
+        <div class="bg-element wheat"></div>
+        <div class="bg-element plant"></div>
+        <div class="bg-element watering"></div>
+        
+        <!-- Animated clouds -->
+        <div class="cloud cloud1"></div>
+        <div class="cloud cloud2"></div>
+        <div class="cloud cloud3"></div>
+    </div>
+
+    <div class="login-container">
+        <div class="login-header">
+            <div class="login-logo floating"></div>
+            <h2>Welcome to AgriSmart</h2>
+            <p>Your smart agriculture companion</p>
+        </div>
+        
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <form method="post" action="{% url 'login' %}" novalidate>
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="email">Email Address *</label>
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="email" name="email" value="{{ email|default:'' }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password *</label>
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <div class="form-options">
+                <div class="remember-me">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Remember me</label>
+                </div>
+                <div class="forgot-password">
+                    <a href="{% url 'forgot_password' %}">Forgot password?</a>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </div>
+            
+            <div class="signup-link">
+                <p>Don't have an account? <a href="{% url 'signup' %}">Sign up</a></p>
+            </div>
+        </form>
+
+        <div class="farm-decoration">
+            <i class="fas fa-tractor floating"></i>
+            <i class="fas fa-leaf floating"></i>
+            <i class="fas fa-wheat-awn floating"></i>
+        </div>
+    </div>
+</body>
+</html>

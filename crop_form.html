@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+    <h1>{% trans "Add New Crop" %}</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <form id="cropForm">
+                <div class="form-group">
+                    <label for="name">{% trans "Crop Name" %} *</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="crop_type">{% trans "Crop Type" %} *</label>
+                    <select class="form-control" id="crop_type" name="crop_type" required>
+                        <option value="">{% trans "Select Crop Type" %}</option>
+                        <option value="rice">{% trans "Rice" %}</option>
+                        <option value="wheat">{% trans "Wheat" %}</option>
+                        <option value="corn">{% trans "Corn" %}</option>
+                        <option value="tomato">{% trans "Tomato" %}</option>
+                        <option value="potato">{% trans "Potato" %}</option>
+                        <option value="other">{% trans "Other" %}</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="field_id">{% trans "Field" %} *</label>
+                    <select class="form-control" id="field_id" name="field_id" required>
+                        <option value="">{% trans "Select Field" %}</option>
+                        {% for field in fields %}
+                        <option value="{{ field.id }}">{{ field.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="planting_date">{% trans "Planting Date" %} *</label>
+                    <input type="date" class="form-control" id="planting_date" name="planting_date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="expected_harvest_date">{% trans "Expected Harvest Date" %}</label>
+                    <input type="date" class="form-control" id="expected_harvest_date" name="expected_harvest_date">
+                </div>
+                
+                <div class="form-group">
+                    <label for="notes">{% trans "Notes" %}</label>
+                    <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">{% trans "Add Crop" %}</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('cropForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Collect form data
+    const formData = {
+        name: document.getElementById('name').value,
+        crop_type: document.getElementById('crop_type').value,
+        field_id: document.getElementById('field_id').value,
+        planting_date: document.getElementById('planting_date').value,
+        expected_harvest_date: document.getElementById('expected_harvest_date').value || null,
+        notes: document.getElementById('notes').value || ''
+    };
+    
+    // Send data to server
+    fetch('/api/crops/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Crop added successfully!');
+            // Reset form
+            document.getElementById('cropForm').reset();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while adding the crop.');
+    });
+});
+</script>
+{% endblock %}

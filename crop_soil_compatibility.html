@@ -1,0 +1,441 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">{% trans "Crop-Soil Compatibility Checker" %}</h1>
+
+    <!-- Selection Form -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-search mr-2"></i>{% trans "Select Crop and Soil Type" %}</h5>
+        </div>
+        <div class="card-body">
+            <form action="{% url 'crop_soil_compatibility' %}" method="get" class="row">
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label for="crop_type">{% trans "Select Crop:" %}</label>
+                        <select name="crop_type" id="crop_type" class="form-control" required>
+                            <option value="">{% trans "Choose a crop..." %}</option>
+                            {% for crop in all_crops %}
+                                <option value="{{ crop }}" {% if selected_crop == crop %}selected{% endif %}>
+                                    {{ crop|title }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label for="soil_type">{% trans "Select Soil Type:" %}</label>
+                        <select name="soil_type" id="soil_type" class="form-control" required>
+                            <option value="">{% trans "Choose a soil type..." %}</option>
+                            {% for soil in all_soils %}
+                                <option value="{{ soil }}" {% if selected_soil == soil %}selected{% endif %}>
+                                    {{ soil|title }} {% trans "Soil" %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button type="submit" class="btn btn-success btn-block">
+                            <i class="fas fa-check"></i> {% trans "Check Compatibility" %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Instructions when no selection is made -->
+    {% if not selected_crop or not selected_soil %}
+        <div class="card mb-4">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-seedling fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">{% trans "Select Both Crop and Soil Type" %}</h4>
+                <p class="text-muted mb-0">{% trans "Please select both a crop and soil type from the form above to check their compatibility and get detailed recommendations." %}</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Results Section -->
+    {% if selected_crop and selected_soil %}
+        <div class="row">
+            <!-- Compatibility Results Column -->
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-chart-line mr-2"></i>
+                            {% trans "Compatibility Results" %} - {{ selected_crop|title }} & {{ selected_soil|title }} {% trans "Soil" %}
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        {% if compatibility_result %}
+                            <div class="compatibility-result">
+                                <h3>{% trans "Compatibility Result" %}</h3>
+                                
+                                {% if compatibility_result.compatible %}
+                                    <div class="alert alert-success">
+                                        <h4 class="alert-heading">
+                                            <i class="fas fa-check-circle"></i> 
+                                            {% trans "Compatible!" %}
+                                        </h4>
+                                        <p>{{ compatibility_result.message }}</p>
+                                        
+                                        {% if compatibility_result.rating %}
+                                            <div class="compatibility-rating">
+                                                <span class="rating-label">{% trans "Suitability Rating:" %}</span>
+                                                <div class="rating-stars">
+                                                    {% for i in "12345" %}
+                                                        {% if forloop.counter <= compatibility_result.rating %}
+                                                            <i class="fas fa-star"></i>
+                                                        {% else %}
+                                                            <i class="far fa-star"></i>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        
+                                        {% if compatibility_result.tips %}
+                                            <hr>
+                                            <h5>{% trans "Growing Tips:" %}</h5>
+                                            <p>{{ compatibility_result.tips }}</p>
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    <div class="alert alert-warning">
+                                        <h4 class="alert-heading">
+                                            <i class="fas fa-exclamation-triangle"></i> 
+                                            {% trans "Not Recommended" %}
+                                        </h4>
+                                        <p>{{ compatibility_result.message }}</p>
+                                        
+                                        {% if compatibility_result.alternatives %}
+                                            <hr>
+                                            <h5>{% trans "Better Alternatives:" %}</h5>
+                                            <ul class="alternatives-list">
+                                                {% for alt in compatibility_result.alternatives %}
+                                                    <li>
+                                                        <a href="{% url 'crop_details' alt %}">{{ alt }}</a>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% endif %}
+                                        
+                                        {% if compatibility_result.tips %}
+                                            <hr>
+                                            <h5>{% trans "If You Still Want to Try:" %}</h5>
+                                            <p>{{ compatibility_result.tips }}</p>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <h5><i class="fas fa-info-circle mr-2"></i>{% trans "No Compatibility Data" %}</h5>
+                                <p class="mb-0">{% trans "Sorry, we don't have compatibility data for this crop and soil combination yet. Please try a different combination or check back later." %}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Back to Recommendations Button -->
+                <div class="mb-4">
+                    <a href="{% url 'soil_crop_recommendations' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> {% trans "Back to Recommendations" %}
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Management Section Column -->
+            <div class="col-lg-6">
+                {% if compatibility_result %}
+                    <!-- Crop Management Section -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h4 class="mb-0">{% trans "Crop Management" %}</h4>
+                        </div>
+                        <div class="card-body">
+                            {% if user_farms %}
+                                <form id="addCropForm" method="POST" action="{% url 'manage_crops' %}">
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                        <label for="farm_field">{% trans "Select Field:" %}</label>
+                                        <select class="form-control" id="farm_field" name="field_id" required>
+                                            <option value="">{% trans "Choose a field" %}</option>
+                                            {% for farm_data in user_farms %}
+                                                <optgroup label="{{ farm_data.farm.name }}">
+                                                    {% for field in farm_data.fields %}
+                                                        <option value="{{ field.id }}">{{ field.name }} ({{ field.soil_type }})</option>
+                                                    {% endfor %}
+                                                </optgroup>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="recommended_crop">{% trans "Selected Crop:" %}</label>
+                                        <select class="form-control" id="recommended_crop" name="crop_type" required>
+                                            <option value="{{ selected_crop }}" selected>
+                                                {{ selected_crop|title }}
+                                                {% if compatibility_result.compatible %}
+                                                    ({% trans "Compatible with" %} {{ selected_soil|title }} {% trans "soil" %})
+                                                {% else %}
+                                                    ({% trans "Not recommended for" %} {{ selected_soil|title }} {% trans "soil" %})
+                                                {% endif %}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="planting_date">{% trans "Planting Date:" %}</label>
+                                                <input type="date" class="form-control" id="planting_date" name="planting_date" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="expected_harvest_date">{% trans "Expected Harvest Date:" %}</label>
+                                                <input type="date" class="form-control" id="expected_harvest_date" name="expected_harvest_date">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-success">{% trans "Add Crop to Field" %}</button>
+                                </form>
+                            {% else %}
+                                <div class="alert alert-warning">
+                                    {% trans "You need to add farms and fields to your account to manage crops." %}
+                                    <a href="{% url 'add_farm' %}" class="btn btn-sm btn-primary mt-2">{% trans "Add Farm" %}</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+                
+                {% if management_tasks %}
+                    <!-- Soil Management Tasks Section -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-warning text-dark">
+                            <h4 class="mb-0">{% trans "Soil Management Tasks" %}</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="task-list">
+                                {% for task in management_tasks %}
+                                    <div class="card mb-3 task-card {% if task.priority == 'high' %}task-high{% elif task.priority == 'medium' %}task-medium{% else %}task-low{% endif %}">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ task.title }}</h5>
+                                            <p class="card-text">{{ task.description }}</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="badge {% if task.priority == 'high' %}badge-danger{% elif task.priority == 'medium' %}badge-warning{% else %}badge-info{% endif %}">
+                                                    {{ task.priority|title }} Priority
+                                                </span>
+                                                
+                                                {% if user_farms %}
+                                                    <button class="btn btn-sm btn-outline-primary add-task-btn" 
+                                                            data-title="{{ task.title }}" 
+                                                            data-description="{{ task.description }}" 
+                                                            data-priority="{{ task.priority }}"
+                                                            data-toggle="modal" 
+                                                            data-target="#taskModal">
+                                                        {% trans "Add to Tasks" %}
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Task Form Modal -->
+        <div class="modal fade" id="taskModal" tabindex="-1" role="dialog" aria-labelledby="taskModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="taskModalLabel">{% trans "Add Task" %}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addTaskForm" method="POST" action="{% url 'add_task' %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="task_farm">{% trans "Select Farm:" %}</label>
+                                <select class="form-control" id="task_farm" name="farm_id" required>
+                                    <option value="">{% trans "Choose a farm" %}</option>
+                                    {% for farm_data in user_farms %}
+                                        <option value="{{ farm_data.farm.id }}">{{ farm_data.farm.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="task_title">{% trans "Task Title:" %}</label>
+                                <input type="text" class="form-control" id="task_title" name="title" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="task_description">{% trans "Description:" %}</label>
+                                <textarea class="form-control" id="task_description" name="description" rows="3" required></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="task_due_date">{% trans "Due Date:" %}</label>
+                                <input type="date" class="form-control" id="task_due_date" name="due_date" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="task_priority">{% trans "Priority:" %}</label>
+                                <select class="form-control" id="task_priority" name="priority" required>
+                                    <option value="high">{% trans "High" %}</option>
+                                    <option value="medium">{% trans "Medium" %}</option>
+                                    <option value="low">{% trans "Low" %}</option>
+                                </select>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-success">{% trans "Add Task" %}</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .compatibility-rating {
+        display: flex;
+        align-items: center;
+        margin-top: 10px;
+    }
+    
+    .rating-label {
+        margin-right: 10px;
+        font-weight: bold;
+    }
+    
+    .rating-stars {
+        color: #ffc107;
+    }
+    
+    .alternatives-list {
+        margin-top: 10px;
+    }
+    
+    .alternatives-list li {
+        margin-bottom: 5px;
+    }
+    
+    .soil-suitability, .crop-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .soil-badge, .crop-badge {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 8px 15px;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        min-width: 100px;
+    }
+    
+    .crop-badge {
+        background-color: #2196f3;
+        color: white;
+    }
+    
+    .crop-badge a {
+        color: white;
+        font-weight: bold;
+        text-decoration: none;
+    }
+    
+    .soil-excellent, .crop-excellent {
+        background-color: #4caf50;
+        color: white;
+    }
+    
+    .soil-good, .crop-good {
+        background-color: #8bc34a;
+        color: white;
+    }
+    
+    .soil-fair, .crop-fair {
+        background-color: #ffc107;
+        color: #333;
+    }
+    
+    .soil-poor, .crop-poor {
+        background-color: #ff9800;
+        color: white;
+    }
+    
+    .soil-name, .crop-name {
+        font-weight: bold;
+    }
+    
+    .soil-rating, .crop-rating {
+        font-size: 0.8rem;
+        margin-top: 3px;
+    }
+    
+    .task-card {
+        border-left-width: 5px;
+    }
+    
+    .task-high {
+        border-left-color: #dc3545;
+    }
+    
+    .task-medium {
+        border-left-color: #ffc107;
+    }
+    
+    .task-low {
+        border-left-color: #17a2b8;
+    }
+</style>
+
+<script>
+    // JavaScript to populate the task modal with data from the clicked task
+    document.addEventListener('DOMContentLoaded', function() {
+        const addTaskButtons = document.querySelectorAll('.add-task-btn');
+        
+        addTaskButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const title = this.getAttribute('data-title');
+                const description = this.getAttribute('data-description');
+                const priority = this.getAttribute('data-priority');
+                
+                document.getElementById('task_title').value = title;
+                document.getElementById('task_description').value = description;
+                document.getElementById('task_priority').value = priority;
+                
+                // Set default due date to 7 days from now
+                const dueDate = new Date();
+                dueDate.setDate(dueDate.getDate() + 7);
+                const formattedDate = dueDate.toISOString().split('T')[0];
+                document.getElementById('task_due_date').value = formattedDate;
+            });
+        });
+    });
+</script>
+{% endblock %}
+
+
+

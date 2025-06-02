@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{% trans "My Farms" %}</h1>
+        <a href="{% url 'add_farm' %}" class="btn btn-success">
+            <i class="fas fa-plus"></i> {% trans "Add Farm" %}
+        </a>
+    </div>
+    
+    {% if farms %}
+        <div class="row">
+            {% for farm in farms %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">{{ farm.name }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>{% trans "Location:" %}</strong> {{ farm.location }}</p>
+                            <p><strong>{% trans "Size:" %}</strong> {{ farm.size }} {{ farm.size_unit }}</p>
+                            {% if farm.description %}
+                                <p><strong>{% trans "Description:" %}</strong> {{ farm.description }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'home' %}" class="btn btn-sm btn-primary">{% trans "View Details" %}</a>
+                            <a href="{% url 'home' %}" class="btn btn-sm btn-info">{% trans "Manage Fields" %}</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <p>{% trans "You don't have any farms yet." %}</p>
+            <p>{% trans "Click the 'Add Farm' button to create your first farm." %}</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,1156 @@
+{% load i18n %}
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="{{ current_language }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% trans "Smart Agriculture Assistant" %}</title>
+
+  <!-- Fonts & Libraries -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="{% static 'style.css' %}" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1932&q=80') no-repeat center center fixed;
+      background-size: cover;
+      color: black;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 0;
+    }
+
+    .topbar {
+      width: 100%;
+      background: rgba(46, 125, 50, 0.7);
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      z-index: 1;
+      position: relative;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-menu {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .nav-item {
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 6px;
+      color: white;
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      background: #66bb6a;
+    }
+
+    .main-content {
+      padding: 30px;
+      z-index: 1;
+      position: relative;
+    }
+
+    .header {
+      margin-bottom: 10px;
+    }
+
+    .header h1 {
+      color: white;
+    }
+
+    .datetime {
+      font-size: 1rem;
+      color: white;
+      margin-top: 5px;
+    }
+
+    .section {
+      margin-top: 30px;
+      background: rgba(255, 255, 255, 0.25);
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      transition: all 0.3s ease;
+    }
+
+    .section:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.2);
+    }
+
+    .section-title {
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin: 0 0 25px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #ffffff;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+      position: relative;
+    }
+
+    .section-title:after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 60px;
+      height: 2px;
+      background: #ffffff;
+    }
+
+    .cards-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-icon {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+
+    .card-value {
+      font-size: 2rem;
+      margin: 10px 0;
+    }
+
+    .card-change {
+      font-size: 1rem;
+      margin-bottom: 10px;
+      color: white;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-change.positive {
+      color: white;
+    }
+
+    .card-change.negative {
+      color: white;
+    }
+
+    .weather-forecast {
+      display: flex;
+      gap: 15px;
+      overflow-x: auto;
+    }
+
+    .forecast-day {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      min-width: 130px;
+      text-align: center;
+      box-shadow: 0 0 6px rgba(0,0,0,0.05);
+      color: black;
+    }
+
+    .chart-container {
+      margin-top: 30px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      min-height: 300px;
+    }
+
+    .crop-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .crop-item {
+      display: flex;
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      width: calc(50% - 10px);
+      align-items: center;
+      gap: 15px;
+      border-left: 5px solid #2e7d32;
+      color: black;
+      margin-bottom: 10px;
+    }
+
+    .crop-image {
+      font-size: 2rem;
+    }
+
+    .irrigation-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .zone-control {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      color: black;
+    }
+
+    .zone-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .zone-status {
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 0.9rem;
+    }
+
+    .status-active {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    .status-inactive {
+      background-color: #ccc;
+    }
+
+    .moisture-bar {
+      background: #ddd;
+      height: 10px;
+      border-radius: 5px;
+      margin-top: 5px;
+    }
+
+    .moisture-level {
+      height: 10px;
+      background: #4caf50;
+      border-radius: 5px;
+    }
+
+    .btn {
+      margin-top: 10px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #2e7d32;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: black;
+      border: 1px solid #ccc;
+    }
+
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .task-item {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: black;
+    }
+
+    .task-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .task-priority {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .priority-high { background: red; }
+    .priority-medium { background: orange; }
+    .priority-low { background: green; }
+
+    .toggle-button {
+      margin: 20px 0;
+    }
+
+    @media (max-width: 768px) {
+      .crop-item {
+        width: 100%;
+      }
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid rgba(0,0,0,0.1);
+      border-radius: 50%;
+      border-top-color: #2e7d32;
+      animation: spin 1s linear infinite;
+      margin-left: 5px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .new-item {
+      animation: highlight 2s ease-out;
+    }
+    
+    @keyframes highlight {
+      0% { background-color: rgba(46, 125, 50, 0.2); }
+      100% { background-color: white; }
+    }
+    
+    #last-updated {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.8);
+    }
+
+    .crop-recommendation {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 5px;
+      font-style: italic;
+      max-width: 200px;
+    }
+
+    .health-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+
+    .health-good {
+      background-color: #4caf50;
+      box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+    }
+
+    .health-warning {
+      background-color: #ff9800;
+      box-shadow: 0 0 5px rgba(255, 152, 0, 0.5);
+    }
+
+    .health-danger {
+      background-color: #f44336;
+      box-shadow: 0 0 5px rgba(244, 67, 54, 0.5);
+    }
+
+    .language-selector-container {
+      display: flex;
+      justify-content: flex-end;
+      padding: 10px 20px;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .language-selector {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .language-btn {
+      padding: 5px 10px;
+      border: 1px solid #4caf50;
+      background: transparent;
+      color: #4caf50;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .language-btn:hover {
+      background-color: rgba(76, 175, 80, 0.1);
+    }
+    
+    .language-btn.active {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    /* Background decorative elements */
+    .bg-elements {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-element {
+      position: absolute;
+      opacity: 0.15;
+      filter: brightness(1.2);
+    }
+
+    .tractor {
+      top: 15%;
+      right: 5%;
+      width: 300px;
+      height: 300px;
+      background: url('https://cdn-icons-png.flaticon.com/512/2349/2349893.png') no-repeat center center;
+      background-size: contain;
+    }
+
+    .crop {
+      bottom: 10%;
+      left: 5%;
+      width: 200px;
+      height: 200px;
+      background: url('https://cdn-icons-png.flaticon.com/512/148/148823.png') no-repeat center center;
+      background-size: contain;
+    }
+    
+    .section-description {
+      color: #333;
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      max-width: 800px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Background decorative elements -->
+  <div class="bg-elements">
+    <div class="bg-element tractor"></div>
+    <div class="bg-element crop"></div>
+  </div>
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="logo">🌱 {% trans "AgriSmart" %}</div>
+    <div class="nav-menu">
+      <div class="nav-item active" onclick="scrollToSection('dashboard')">📊 {% trans "Dashboard" %}</div>
+      <div class="nav-item" onclick="scrollToSection('weather')">🌦️ {% trans "Weather" %}</div>
+      <div class="nav-item" onclick="scrollToSection('crops')">🌱 {% trans "Crops" %}</div>
+      <div class="nav-item" onclick="scrollToSection('irrigation')">💧 {% trans "Irrigation" %}</div>
+      <div class="nav-item" onclick="scrollToSection('tasks')">📝 {% trans "Tasks" %}</div>
+    </div>
+    
+    <!-- User profile dropdown -->
+    <div class="user-dropdown">
+      <div class="user-dropdown-btn">
+        👤 {{ request.user.username }} <span class="dropdown-arrow">▼</span>
+      </div>
+      <div class="user-dropdown-content">
+        <a href="javascript:void(0)" onclick="confirmLogout()">{% trans "Logout" %} 🚪</a>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .user-dropdown {
+      position: relative;
+      margin-left: auto;
+      cursor: pointer;
+    }
+    
+    .user-dropdown-btn {
+      padding: 8px 15px;
+      background-color: #4caf50;
+      color: white;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .dropdown-arrow {
+      margin-left: 8px;
+      font-size: 12px;
+    }
+    
+    .user-dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: white;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 1;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .user-dropdown-content a {
+      color: #333;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      transition: background-color 0.3s;
+    }
+    
+    .user-dropdown-content a:hover {
+      background-color: #f1f1f1;
+    }
+    
+    .user-dropdown:hover .user-dropdown-content {
+      display: block;
+    }
+  </style>
+
+  <!-- Language Selector -->
+  <div class="language-selector-container">
+    <div class="language-selector">
+      <span>{% trans "Language" %}:</span>
+      <a href="{% url 'change_language' %}?language=en&next={{ request.path }}" class="language-btn {% if request.COOKIES.django_language == 'en' %}active{% endif %}">
+        English
+      </a>
+      <a href="{% url 'change_language' %}?language=ta&next={{ request.path }}" class="language-btn {% if request.COOKIES.django_language == 'ta' %}active{% endif %}">
+        தமிழ்
+      </a>
+    </div>
+  </div>
+
+  <style>
+    .language-selector-container {
+      margin: 10px 0;
+    }
+    
+    .language-selector {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .language-btn {
+      padding: 5px 10px;
+      border: 1px solid #4caf50;
+      background: transparent;
+      color: #4caf50;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    
+    .language-btn:hover {
+      background-color: rgba(76, 175, 80, 0.1);
+    }
+    
+    .language-btn.active {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    /* View Recommendations Button Styling */
+    .view-recommendations-btn:hover {
+      background-color: #388e3c !important;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+    }
+
+    .view-recommendations-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2);
+    }
+  </style>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="header" id="dashboard">
+      <h1>{% trans "Farm Dashboard" %}</h1>
+      <div class="datetime">
+        {% trans "Updated" %}: <span id="current-date"></span> <span id="current-time"></span>
+        <br>
+        <small>{% trans "Data last refreshed" %}: <span id="last-updated">{% trans "Loading" %}...</span></small>
+        <br>
+        <small>{% trans "Next update in" %}: <span id="next-update">60s</span></small>
+      </div>
+    </div>
+
+    <!-- Dashboard Cards -->
+    <div class="cards-container">
+      <div class="card">
+        <div class="card-icon">💧</div>
+        <div class="card-title">{% trans "Soil Moisture" %}</div>
+        <div class="card-value">65%</div>
+        <div class="card-change positive">+3%</div>
+      </div>
+      
+      <div class="card">
+        <div class="card-icon">🌡️</div>
+        <div class="card-title">{% trans "Temperature" %}</div>
+        <div class="card-value">24°C</div>
+        <div class="card-change positive">+2°C</div>
+      </div>
+      
+      <div class="card">
+        <div class="card-icon">☁️</div>
+        <div class="card-title">{% trans "Humidity" %}</div>
+        <div class="card-value">58%</div>
+        <div class="card-change negative">-5%</div>
+      </div>
+      
+      <div class="card">
+        <div class="card-icon">🌧️</div>
+        <div class="card-title">{% trans "Rainfall" %}</div>
+        <div class="card-value">25mm</div>
+        <div class="card-change positive">+10mm</div>
+      </div>
+    </div>
+
+    <div class="section" id="weather">
+      <h2 class="section-title">🌦️ {% trans "Weather Forecast" %}</h2>
+      <div class="section-description">{% trans "Get the latest weather forecast for your area." %}</div>
+      <div class="weather-forecast" id="weather-forecast">
+        <!-- Weather forecast will be populated dynamically -->
+        <div class="forecast-day">{% trans "Loading" %}...</div>
+      </div>
+      <div class="chart-container">
+        <canvas id="temperatureChart"></canvas>
+      </div>
+    </div>
+
+    <div class="section" id="crops">
+      <h2 class="section-title">🌱 {% trans "Crop Management" %}</h2>
+      <div class="section-description">{% trans "Manage your crops and get recommendations for optimal growth." %}</div>
+      <button class="btn btn-secondary toggle-button" onclick="toggleCropList()">{% trans "Toggle Crop Details" %}</button>
+      <div class="crop-list" id="crop-list">
+        <!-- Crops will be dynamically populated here -->
+      </div>
+    </div>
+
+    <div class="section" id="irrigation">
+      <h2 class="section-title">💧 {% trans "Irrigation Control" %}</h2>
+      <div class="section-description">{% trans "Control your irrigation systems and optimize water usage." %}</div>
+      <div class="irrigation-controls">
+        <div class="zone-control">
+          <div class="zone-header">
+            <div class="zone-title">{% trans "Zone" %} 1 - {% trans "North Field" %}</div>
+            <div class="zone-status">{% trans "Status" %}: {% trans "Normal" %}</div>
+          </div>
+          <div class="moisture-container">
+            <div class="moisture-label">{% trans "Moisture" %}: 65%</div>
+            <div class="moisture-bar">
+              <div class="moisture-level" style="width: 65%"></div>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="irrigateZone(this)">{% trans "Irrigate Now" %}</button>
+        </div>
+        
+        <!-- More irrigation zones... -->
+      </div>
+    </div>
+
+    <div class="section" id="tasks">
+      <h2 class="section-title">📝 {% trans "Tasks" %}</h2>
+      <div class="section-description">{% trans "View and manage your tasks and reminders." %}</div>
+      <div class="task-list">
+        <div class="task-item">
+          <div class="task-info"><div class="task-priority priority-high"></div> {% trans "Apply pesticide" %}</div>
+          <button class="btn btn-primary" onclick="markTaskDone(this)">{% trans "Mark as Done" %}</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Soil & Crop Recommendations Section -->
+    <!-- White, large, bold heading for Soil & Crop Recommendations -->
+    <h2 class="text-white mb-4" style="background: transparent; padding: 15px 25px; border-radius: 8px; font-size: 2rem; font-weight: bold; display: flex; align-items: center; color: white !important;">
+      <i class="fas fa-seedling mr-3" style="font-size: 1.5rem; color: white !important;"></i>{% trans "Soil & Crop Recommendations" %}
+    </h2>
+
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between">
+          <p class="mb-0">{% trans "Get crop recommendations based on your soil type." %}</p>
+          <button onclick="window.location.href='{% url 'soil_crop_recommendations' %}';" class="btn view-recommendations-btn" style="background-color: #4caf50; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background-color 0.3s ease;">
+            {% trans "View Recommendations" %}
+          </button>
+        </div>
+        </div>
+      </div>
+      <div class="card mb-4">                                <!-- Card container -->
+  <div class="card-header bg-success text-white">      <!-- Card header -->
+    <h5 class="mb-0">...</h5>
+  </div>
+  <div class="card-body">                             <!-- Card body -->
+    <div class="d-flex align-items-center justify-content-between">  <!-- Flex container -->
+      <p class="mb-0">...</p>
+      <button>...</button>
+    </div>
+  </div>
+
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    function scrollToSection(id) {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function toggleCropList() {
+      const cropList = document.getElementById('crop-list');
+      cropList.style.display = (cropList.style.display === 'none') ? 'flex' : 'none';
+    }
+
+    function updateDateTime() {
+      const now = new Date();
+      document.getElementById('current-date').textContent = now.toLocaleDateString();
+      document.getElementById('current-time').textContent = now.toLocaleTimeString();
+    }
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+
+    const ctx = document.getElementById('temperatureChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+        datasets: [{
+          label: 'Temperature °C',
+          data: [21, 22, 24, 23, 19],
+          borderColor: '#2e7d32',
+          fill: true,
+          backgroundColor: 'rgba(46, 125, 50, 0.2)',
+          tension: 0.4
+        }]
+      }
+    });
+
+    function markTaskDone(button) {
+      const parent = button.parentElement;
+      if (!parent.querySelector('.task-message')) {
+        const message = document.createElement('div');
+        message.className = 'task-message';
+        message.innerText = '{% trans "Tomorrow you will be assigned next" %}';
+        parent.appendChild(message);
+      }
+      button.disabled = true;
+      button.innerText = '{% trans "Done" %}';
+    }
+
+    function irrigateZone(button) {
+      // Disable the button
+      button.disabled = true;
+      // Change text to Done
+      button.innerText = '{% trans "Done" %}';
+      
+      // Optional: Change the moisture level to show irrigation effect
+      const zoneControl = button.closest('.zone-control');
+      const moistureLevel = zoneControl.querySelector('.moisture-level');
+      moistureLevel.style.width = '90%';
+    }
+
+    function updateDashboardData() {
+      // Show loading indicators
+      document.querySelectorAll('.card-value').forEach(el => {
+        if (!el.querySelector('.loading-spinner')) {
+          el.innerHTML += ' <span class="loading-spinner"></span>';
+        }
+      });
+      
+      fetch('/api/update-sensor-data/')
+        .then(response => response.json())
+        .then(data => {
+          // Remove all loading spinners
+          document.querySelectorAll('.loading-spinner').forEach(spinner => {
+            spinner.remove();
+          });
+          
+          // Update temperature
+          document.querySelector('.card:nth-child(2) .card-value').innerHTML = data.temperature + '°C';
+          
+          // Update humidity
+          document.querySelector('.card:nth-child(3) .card-value').innerHTML = data.humidity + '%';
+          
+          // Update soil moisture
+          document.querySelector('.card:nth-child(1) .card-value').innerHTML = data.soil_moisture + '%';
+          
+          // Update rainfall
+          document.querySelector('.card:nth-child(4) .card-value').innerHTML = data.rainfall + 'mm';
+          
+          // Update moisture bars in irrigation section
+          const moistureLevels = document.querySelectorAll('.moisture-level');
+          moistureLevels.forEach(level => {
+            level.style.width = data.soil_moisture + '%';
+          });
+          
+          // Add a subtle highlight effect to show data has been updated
+          document.querySelectorAll('.card').forEach(card => {
+            card.classList.add('new-item');
+            setTimeout(() => card.classList.remove('new-item'), 2000);
+          });
+          
+          // Update timestamp
+          document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+          
+          // Update crops if provided
+          if (data.crops && data.crops.length > 0) {
+            const cropList = document.getElementById('crop-list');
+            cropList.innerHTML = ''; // Clear existing crops
+            
+            data.crops.forEach(crop => {
+              // Determine health status class
+              let healthClass = 'health-warning';
+              let statusText = '{% trans "Attention" %}';
+              
+              if (crop.health >= 80) {
+                healthClass = 'health-good';
+                statusText = '{% trans "Healthy" %}';
+              } else if (crop.health < 50) {
+                healthClass = 'health-danger';
+                statusText = '{% trans "Critical" %}';
+              }
+              
+              // Create crop item
+              const cropItem = document.createElement('div');
+              cropItem.className = 'crop-item';
+              cropItem.innerHTML = `
+                <div class="crop-image">${crop.icon}</div>
+                <div class="crop-details">
+                  <div class="crop-name">${crop.name}</div>
+                  <div class="crop-status">
+                    <span class="health-indicator ${healthClass}"></span>
+                    ${crop.health}% - ${statusText}
+                  </div>
+                  <div class="crop-recommendation">${crop.recommendation}</div>
+                </div>
+              `;
+              
+              cropList.appendChild(cropItem);
+            });
+          }
+          
+          console.log('Dashboard data updated at ' + new Date().toLocaleTimeString());
+        })
+        .catch(error => {
+          console.error('{% trans "Error updating sensor data" %}:', error);
+          // Remove loading spinners on error
+          document.querySelectorAll('.loading-spinner').forEach(spinner => {
+            spinner.remove();
+          });
+        });
+    }
+    
+    // Update data every minute (60000 milliseconds)
+    setInterval(updateDashboardData, 60000);
+    
+    // Initial update when page loads
+    // Consolidated with main DOMContentLoaded event
+    
+    // Add a countdown timer to show when the next update will happen
+    function updateCountdown() {
+      const nextUpdateTime = new Date();
+      nextUpdateTime.setSeconds(nextUpdateTime.getSeconds() + 60);
+      
+      const countdownInterval = setInterval(() => {
+        const now = new Date();
+        const diff = nextUpdateTime - now;
+        
+        if (diff <= 0) {
+          clearInterval(countdownInterval);
+          return;
+        }
+        
+        const seconds = Math.floor(diff / 1000);
+        document.getElementById('next-update').textContent = `${seconds}s`;
+      }, 1000);
+    }
+    
+    // Start the countdown after each update
+    document.addEventListener('DOMContentLoaded', () => {
+      updateDashboardData();
+      updateCountdown();
+      
+      setInterval(() => {
+        updateDashboardData();
+        updateCountdown();
+      }, 60000);
+    });
+
+    // Add this to your existing JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set up language switcher
+      const languageBtns = document.querySelectorAll('.language-btn');
+      languageBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const language = this.getAttribute('data-lang');
+          changeLanguage(language);
+        });
+      });
+    });
+  
+    function changeLanguage(language) {
+      // Send AJAX request to change language
+      fetch('/api/change-language/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: `language=${language}`
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          // Reload the page to apply the language change
+          window.location.reload();
+        }
+      })
+      .catch(error => console.error('Error changing language:', error));
+    }
+  
+    // Helper function to get CSRF token from cookies
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+  </script>
+  <script>
+    // Function to confirm logout
+    function confirmLogout() {
+      if (confirm("{% trans 'Are you sure you want to logout?' %}")) {
+        window.location.href = "{% url 'logout' %}";
+      }
+    }
+  </script>
+  <!-- Add this right after the topbar section, before the main-content -->
+  <div id="weather-alert-container" class="weather-alert-container" style="display: none;">
+    <div class="weather-alert">
+      <div class="alert-icon">⚠️</div>
+      <div class="alert-content">
+        <div class="alert-title" id="alert-title">Weather Alert</div>
+        <div class="alert-message" id="alert-message">Rain expected in your area. Take necessary precautions.</div>
+      </div>
+      <button class="alert-close" onclick="dismissAlert()">×</button>
+    </div>
+  </div>
+
+  <!-- Add this JavaScript at the end of your file, before the closing body tag -->
+  <script>
+    // Function to check for weather alerts
+    function checkWeatherAlerts() {
+      fetch('{% url "get_weather_alert" %}')
+        .then(response => response.json())
+        .then(data => {
+          if (data.status !== 'no_alert') {
+            // Show alert if there's an alert message
+            document.getElementById('alert-title').textContent = data.title || 'Weather Alert';
+            document.getElementById('alert-message').textContent = data.message || 'Weather conditions changing.';
+            
+            // Set alert type class
+            const alertContainer = document.getElementById('weather-alert-container');
+            alertContainer.className = 'weather-alert-container';
+            if (data.type) {
+              alertContainer.classList.add('alert-' + data.type);
+            }
+            
+            // Show the alert
+            alertContainer.style.display = 'block';
+            
+            // Auto-dismiss after 10 seconds if it's just an info alert
+            if (data.type === 'info') {
+              setTimeout(() => {
+                if (alertContainer.style.display === 'block') {
+                  alertContainer.style.display = 'none';
+                }
+              }, 10000);
+            }
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching weather alerts:', error);
+        });
+    }
+    
+    // Function to dismiss the alert
+    function dismissAlert() {
+      document.getElementById('weather-alert-container').style.display = 'none';
+    }
+    
+    // Check for alerts when page loads and then every 5 minutes
+    // Consolidated with main DOMContentLoaded event
+    setInterval(checkWeatherAlerts, 300000); // 5 minutes
+  </script>
+  <!-- Add this to your existing JavaScript section -->
+  <script>
+    // Function to fetch and update weather forecast
+    function updateWeatherForecast() {
+      fetch('{% url "get_weather_forecast" %}')
+        .then(response => response.json())
+        .then(data => {
+          const forecastContainer = document.getElementById('weather-forecast');
+          forecastContainer.innerHTML = ''; // Clear existing forecast
+          
+          // Create forecast cards for each day
+          data.forecast.forEach(day => {
+            const forecastDay = document.createElement('div');
+            forecastDay.className = 'forecast-day';
+            
+            // Get weather icon based on condition
+            let weatherIcon = '☀️'; // Default sunny
+            if (day.condition.toLowerCase().includes('rain')) {
+              weatherIcon = '🌧️';
+            } else if (day.condition.toLowerCase().includes('cloud')) {
+              weatherIcon = '⛅';
+            } else if (day.condition.toLowerCase().includes('snow')) {
+              weatherIcon = '❄️';
+            } else if (day.condition.toLowerCase().includes('thunder')) {
+              weatherIcon = '⛈️';
+            } else if (day.condition.toLowerCase().includes('fog') || day.condition.toLowerCase().includes('mist')) {
+              weatherIcon = '🌫️';
+            }
+            
+            // Format the forecast day content
+            forecastDay.innerHTML = `
+              ${day.day}<br>
+              ${weatherIcon}<br>
+              ${day.high_temp}°C / ${day.low_temp}°C<br>
+              ${day.condition}
+            `;
+            
+            forecastContainer.appendChild(forecastDay);
+          });
+          
+          // Update the temperature chart with forecast data
+          updateTemperatureChart(data.forecast);
+        })
+        .catch(error => {
+          console.error('Error fetching weather forecast:', error);
+        });
+    }
+    
+    // Function to update temperature chart with forecast data
+    function updateTemperatureChart(forecastData) {
+      const ctx = document.getElementById('temperatureChart').getContext('2d');
+      
+      // Extract data for chart
+      const labels = forecastData.map(day => day.day);
+      const highTemps = forecastData.map(day => day.high_temp);
+      const lowTemps = forecastData.map(day => day.low_temp);
+      
+      // Create or update chart
+      if (window.tempChart) {
+        window.tempChart.data.labels = labels;
+        window.tempChart.data.datasets[0].data = highTemps;
+        window.tempChart.data.datasets[1].data = lowTemps;
+        window.tempChart.update();
+      } else {
+        window.tempChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: '{% trans "High °C" %}',
+                data: highTemps,
+                borderColor: '#ff7043',
+                backgroundColor: 'rgba(255, 112, 67, 0.2)',
+                tension: 0.4
+              },
+              {
+                label: '{% trans "Low °C" %}',
+                data: lowTemps,
+                borderColor: '#29b6f6',
+                backgroundColor: 'rgba(41, 182, 246, 0.2)',
+                tension: 0.4
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+              title: {
+                display: true,
+                text: '{% trans "Temperature Forecast" %}'
+              }
+            }
+          }
+        });
+      }
+    }
+    
+    // Update weather forecast when page loads and every hour
+    // Consolidated with main DOMContentLoaded event
+    setInterval(updateWeatherForecast, 3600000); // Update every hour
+  </script>
+</body>
+</html>

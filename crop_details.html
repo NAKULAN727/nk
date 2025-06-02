@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">{% trans "Dashboard" %}</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'soil_crop_recommendations' %}">{% trans "Soil & Crop Recommendations" %}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ crop.name }}</li>
+                </ol>
+            </nav>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h1 class="mb-0">{{ crop.name }}</h1>
+                    {% if crop.scientific_name %}
+                        <p class="mb-0 font-italic">{{ crop.scientific_name }}</p>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-4">
+                            {% if crop.name == "Rice" %}
+                                <div class="crop-icon">🌾</div>
+                            {% elif crop.name == "Wheat" %}
+                                <div class="crop-icon">🌾</div>
+                            {% elif crop.name == "Corn" %}
+                                <div class="crop-icon">🌽</div>
+                            {% elif crop.name == "Tomatoes" %}
+                                <div class="crop-icon">🍅</div>
+                            {% elif crop.name == "Potatoes" %}
+                                <div class="crop-icon">🥔</div>
+                            {% elif crop.name == "Carrots" %}
+                                <div class="crop-icon">🥕</div>
+                            {% elif crop.name == "Strawberries" %}
+                                <div class="crop-icon">🍓</div>
+                            {% else %}
+                                <div class="crop-icon">🌱</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <h3>{% trans "Description" %}</h3>
+                            <p>{{ crop.description }}</p>
+                            
+                            {% if crop.tips %}
+                                <h3>{% trans "Growing Tips" %}</h3>
+                                <p>{{ crop.tips }}</p>
+                            {% endif %}
+                            
+                            {% if crop.suitable_soils %}
+                                <h3>{% trans "Suitable Soil Types" %}</h3>
+                                <div class="soil-suitability">
+                                    {% for soil in crop.suitable_soils %}
+                                        <div class="soil-badge {% if soil.suitability == 'excellent' %}soil-excellent{% elif soil.suitability == 'good' %}soil-good{% elif soil.suitability == 'fair' %}soil-fair{% else %}soil-poor{% endif %}">
+                                            <span class="soil-name">{{ soil.type|title }}</span>
+                                            <span class="soil-rating">{{ soil.suitability|title }}</span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if crop.growing_season %}
+                        <hr>
+                        <h3>{% trans "Growing Information" %}</h3>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table">
+                                    <tr>
+                                        <th>{% trans "Growing Season" %}</th>
+                                        <td>{{ crop.growing_season }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>{% trans "Days to Maturity" %}</th>
+                                        <td>{{ crop.days_to_maturity }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>{% trans "Optimal Temperature" %}</th>
+                                        <td>{{ crop.optimal_temperature }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>{% trans "Water Needs" %}</th>
+                                        <td>{{ crop.water_needs }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>{% trans "Soil pH" %}</th>
+                                        <td>{{ crop.soil_ph }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <table class="table">
+                                    <tr>
+                                        <th>{% trans "Planting Depth" %}</th>
+                                        <td>{{ crop.planting_depth }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>{% trans "Row Spacing" %}</th>
+                                        <td>{{ crop.row_spacing }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>{% trans "Fertilizer Needs" %}</th>
+                                        <td>{{ crop.fertilizer_needs }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>{% trans "Common Pests" %}</th>
+                                        <td>{{ crop.common_pests }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>{% trans "Diseases" %}</th>
+                                        <td>{{ crop.diseases }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h3>{% trans "Harvesting" %}</h3>
+                            <p>{{ crop.harvesting }}</p>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'soil_crop_recommendations' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> {% trans "Back to Recommendations" %}
+                        </a>
+                        
+                        <a href="{% url 'crop_soil_compatibility' %}" class="btn btn-primary">
+                            <i class="fas fa-search"></i> {% trans "Check Soil Compatibility" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .crop-icon {
+        font-size: 6rem;
+        margin: 1rem 0;
+    }
+    
+    .breadcrumb {
+        background-color: #f8f9fa;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1rem;
+        border-radius: 0.25rem;
+    }
+    
+    .soil-suitability {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    
+    .soil-badge {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 8px 15px;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        min-width: 100px;
+    }
+    
+    .soil-excellent {
+        background-color: #4caf50;
+        color: white;
+    }
+    
+    .soil-good {
+        background-color: #8bc34a;
+        color: white;
+    }
+    
+    .soil-fair {
+        background-color: #ffc107;
+        color: #333;
+    }
+    
+    .soil-poor {
+        background-color: #ff9800;
+        color: white;
+    }
+    
+    .soil-name {
+        font-weight: bold;
+    }
+    
+    .soil-rating {
+        font-size: 0.8rem;
+        margin-top: 3px;
+    }
+</style>
+{% endblock %}
+
+
+
+
+

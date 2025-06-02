@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+    <h1>{% trans "Add Soil Data" %}</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <form id="soilForm">
+                <div class="form-group">
+                    <label for="field_id">{% trans "Field" %} *</label>
+                    <select class="form-control" id="field_id" name="field_id" required>
+                        <option value="">{% trans "Select Field" %}</option>
+                        {% for field in fields %}
+                        <option value="{{ field.id }}">{{ field.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="soil_type">{% trans "Soil Type" %} *</label>
+                    <select class="form-control" id="soil_type" name="soil_type" required>
+                        <option value="">{% trans "Select Soil Type" %}</option>
+                        <option value="clay">{% trans "Clay" %}</option>
+                        <option value="sandy">{% trans "Sandy" %}</option>
+                        <option value="loamy">{% trans "Loamy" %}</option>
+                        <option value="silty">{% trans "Silty" %}</option>
+                        <option value="peaty">{% trans "Peaty" %}</option>
+                        <option value="chalky">{% trans "Chalky" %}</option>
+                        <option value="other">{% trans "Other" %}</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ph_level">{% trans "pH Level" %}</label>
+                    <input type="number" class="form-control" id="ph_level" name="ph_level" step="0.1" min="0" max="14">
+                </div>
+                
+                <div class="form-group">
+                    <label for="organic_matter">{% trans "Organic Matter (%)" %}</label>
+                    <input type="number" class="form-control" id="organic_matter" name="organic_matter" step="0.1" min="0" max="100">
+                </div>
+                
+                <div class="form-group">
+                    <label for="nitrogen">{% trans "Nitrogen (ppm)" %}</label>
+                    <input type="number" class="form-control" id="nitrogen" name="nitrogen" step="0.1" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="phosphorus">{% trans "Phosphorus (ppm)" %}</label>
+                    <input type="number" class="form-control" id="phosphorus" name="phosphorus" step="0.1" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="potassium">{% trans "Potassium (ppm)" %}</label>
+                    <input type="number" class="form-control" id="potassium" name="potassium" step="0.1" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="notes">{% trans "Notes" %}</label>
+                    <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">{% trans "Add Soil Data" %}</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('soilForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Collect form data
+    const formData = {
+        field_id: document.getElementById('field_id').value,
+        soil_type: document.getElementById('soil_type').value,
+        ph_level: document.getElementById('ph_level').value || null,
+        organic_matter: document.getElementById('organic_matter').value || null,
+        nitrogen: document.getElementById('nitrogen').value || null,
+        phosphorus: document.getElementById('phosphorus').value || null,
+        potassium: document.getElementById('potassium').value || null,
+        notes: document.getElementById('notes').value || ''
+    };
+    
+    // Send data to server
+    fetch('/api/soil-data/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Soil data added successfully!');
+            // Reset form
+            document.getElementById('soilForm').reset();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while adding soil data.');
+    });
+});
+</script>
+{% endblock %}

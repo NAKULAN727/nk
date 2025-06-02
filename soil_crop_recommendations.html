@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+  <!-- White, large, bold heading for Soil & Crop Recommendations -->
+  <h1 class="text-white mb-4" style="background: transparent; padding: 15px 25px; border-radius: 8px; font-size: 2.5rem; font-weight: bold; display: flex; align-items: center; color: white !important;">
+    <i class="fas fa-seedling mr-3" style="font-size: 2rem; color: white !important;"></i>{% trans "Soil & Crop Recommendations" %}
+  </h1>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <p class="mb-0">{% trans "Get crop recommendations based on your soil type." %}</p>
+      </div>
+      
+      <!-- Soil Type Selection Form -->
+      <form action="{% url 'soil_crop_recommendations' %}" method="get" class="mb-4">
+        <div class="form-group">
+          <label for="soil_type">{% trans "Select Your Soil Type:" %}</label>
+          <select name="soil_type" id="soil_type" class="form-control">
+            <option value="clay" {% if selected_soil == 'clay' %}selected{% endif %}>{% trans "Clay Soil" %}</option>
+            <option value="sandy" {% if selected_soil == 'sandy' %}selected{% endif %}>{% trans "Sandy Soil" %}</option>
+            <option value="loamy" {% if selected_soil == 'loamy' %}selected{% endif %}>{% trans "Loamy Soil" %}</option>
+            <option value="chalky" {% if selected_soil == 'chalky' %}selected{% endif %}>{% trans "Chalky Soil" %}</option>
+            <option value="peaty" {% if selected_soil == 'peaty' %}selected{% endif %}>{% trans "Peaty Soil" %}</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">{% trans "Get Recommendations" %}</button>
+      </form>
+      
+      {% if recommendations.crops %}
+      <div class="recommendations-container">
+        <h4>{% trans "Recommended Crops for" %} {{ selected_soil|title }} {% trans "Soil" %}:</h4>
+        <div class="row">
+          {% for crop in recommendations.crops %}
+          <div class="col-md-4 mb-3">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title">{{ crop.name }}</h5>
+                <p class="card-text">{{ crop.description }}</p>
+              </div>
+              <div class="card-footer text-center">
+                <a href="{% url 'crop_soil_compatibility' %}?crop_type={{ crop.name|lower }}&soil_type={{ selected_soil }}" class="btn btn-info">
+                  {% trans "Check Compatibility" %}
+                </a>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
